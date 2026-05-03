@@ -71,10 +71,18 @@ puts "CDC/Sync..."
 # An (optional) lower delay is better for metastability recovery -> 3ns as a reasonable goal
 
 ## Constrain `cdc_2phase` for DMI request
-set_max_delay 3.0 -from $JTAG_ASYNC_REQ_START -to $JTAG_ASYNC_REQ_END -ignore_clock_latency
+if {[llength $JTAG_ASYNC_REQ_START] > 0 && [llength $JTAG_ASYNC_REQ_END] > 0} {
+  set_max_delay 3.0 -from $JTAG_ASYNC_REQ_START -to $JTAG_ASYNC_REQ_END -ignore_clock_latency
+} else {
+  puts "Skipping JTAG request CDC max-delay constraint: matching objects not found."
+}
 
 # Constrain `cdc_2phase` for DMI response
-set_max_delay 3.0 -from $JTAG_ASYNC_RSP_START -to $JTAG_ASYNC_RSP_END -ignore_clock_latency
+if {[llength $JTAG_ASYNC_RSP_START] > 0 && [llength $JTAG_ASYNC_RSP_END] > 0} {
+  set_max_delay 3.0 -from $JTAG_ASYNC_RSP_START -to $JTAG_ASYNC_RSP_END -ignore_clock_latency
+} else {
+  puts "Skipping JTAG response CDC max-delay constraint: matching objects not found."
+}
 
 
 #############

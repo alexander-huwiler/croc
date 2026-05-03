@@ -20,7 +20,13 @@ set abc_script [processAbcScript scripts/abc-opt.script]
 # read liberty files and prepare some variables
 source scripts/init_tech.tcl
 
-yosys plugin -i slang.so
+if {[info exists ::env(YOSYS_SLANG_PLUGIN)] && $::env(YOSYS_SLANG_PLUGIN) ne ""} {
+	puts "1. Loading yosys-slang plugin from $::env(YOSYS_SLANG_PLUGIN)"
+	yosys plugin -i $::env(YOSYS_SLANG_PLUGIN)
+} else {
+	puts "1. Loading yosys-slang plugin from default Yosys plugin search path"
+	yosys plugin -i slang.so
+}
 # default from yosys_common.tcl: top_design=croc_chip; sv_flist=./croc.flist
 yosys read_slang --top $top_design -f $sv_flist \
         --compat-mode --keep-hierarchy \

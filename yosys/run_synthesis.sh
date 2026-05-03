@@ -73,8 +73,9 @@ run_cmd() {
 
 
 run_yosys() {
+    local yosys_bin="${YOSYS_BIN:-yosys}"
     run_cmd "echo [INFO][Yosys] Synthesizing ${TOP_DESIGN}"
-    run_cmd "yosys \
+    run_cmd "\"${yosys_bin}\" \
         -c scripts/yosys_synthesis.tcl 2>&1 | \
         TZ=UTC gawk '{ print strftime(\"[%Y-%m-%d %H:%M %Z]\"), \$0 }' | \
         tee ${PROJ_NAME}.log | \
@@ -83,8 +84,9 @@ run_yosys() {
 
 
 open_yosys() {
+    local yosys_bin="${YOSYS_BIN:-yosys}"
     run_cmd "echo [INFO][Yosys] Open Yosys"
-    run_cmd "yosys -C"
+    run_cmd "\"${yosys_bin}\" -C"
 }
 
 

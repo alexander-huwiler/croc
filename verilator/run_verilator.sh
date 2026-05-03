@@ -8,6 +8,7 @@
 
 set -e  # Exit on error
 set -u  # Error on undefined vars
+set -o pipefail
 
 
 ################
