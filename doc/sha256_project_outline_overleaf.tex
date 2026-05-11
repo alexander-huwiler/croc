@@ -1,0 +1,123 @@
+\documentclass[10pt,a4paper]{article}
+
+\usepackage[margin=1.2cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{parskip}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.28em}
+\setlist[itemize]{leftmargin=*, itemsep=0pt, topsep=1pt}
+
+\begin{document}
+
+\begin{center}
+{\LARGE \textbf{SHA-256 Hardware Acceleration in Croc}}\\[2pt]
+{\large Project Outline for VLSI 2 FS2026}\\[2pt]
+\textbf{Radu-Constantin Cretu, Alexander Huwiler}
+\end{center}
+
+\vspace{0.15em}
+\small
+\textbf{Project objective.}
+We propose a Croc-based SoC improvement that adds a dedicated SHA-256 hardware
+accelerator to the \texttt{user\_domain}. In the baseline exercise design,
+SHA-256 would have to run entirely in software on the RISC-V core. Our project
+offloads the SHA-256 compression step to custom hardware, turning Croc into a
+small hardware/software co-designed platform with a measurable application-level
+improvement. The proposed extension is therefore a genuine SoC-level addition:
+it introduces a new user-domain peripheral, a new software-visible interface,
+and a concrete workload for which the impact of the improvement can be measured.
+
+\textbf{Design improvement.}
+The accelerator is exposed as a memory-mapped peripheral at
+\texttt{0x2000\_1000}. Software writes a padded 512-bit message block into 16
+input registers, triggers the computation through a control register, and reads
+the resulting 256-bit digest back from 8 output registers. The current design
+supports both single-block hashing and chained multi-block hashing, so longer
+messages can be processed block by block. This keeps the interface simple while
+still providing a meaningful architectural extension over the base Croc design.
+In the current version, software performs the message padding while the hardware
+implements the SHA-256 compression and state chaining. This choice keeps the
+accelerator compact enough for backend implementation while still moving the
+performance-critical part of the algorithm into hardware. In addition, the
+required user ROM at \texttt{0x2000\_0000} has been added so that the chip can
+return the student names in the format expected by the course infrastructure.
+
+\textbf{Relevance and originality.}
+SHA-256 is a realistic accelerator target because it is computationally heavy,
+easy to verify against standard references, and structurally well suited for a
+custom datapath. The project therefore aligns well with the course goals:
+functionality can be demonstrated unambiguously, performance can be compared
+against a software baseline, and the final design remains suitable for the full
+implementation flow from RTL to physical design. The proposed accelerator is not
+just an isolated module, but a complete Croc extension involving user-domain
+integration, software support, verification, and later backend tradeoffs in area
+and timing.
+
+\textbf{System-level structure.}
+At the SoC level, the project adds a new accelerator block in the
+\texttt{user\_domain} address space while leaving the existing Croc core and
+baseline peripherals intact. Software communicates with the accelerator through
+a simple programming model based on control, status, block-input, and digest
+registers. This makes the extension easy to exercise from bare-metal software,
+but still representative of a realistic accelerator integration problem:
+address decoding, register-map design, interrupt support, and interaction
+between the processor and a dedicated datapath. In this sense, the project is
+not only about implementing SHA-256 itself, but about integrating a useful
+accelerator into a complete SoC in a way that remains compatible with the
+standard Croc flow.
+
+\textbf{Implementation status.}
+A first working prototype is already integrated into Croc. The RTL, MMIO
+interface, driver, and bare-metal software tests are in place. Functional
+verification in Verilator already covers standard single-block and multi-block
+SHA-256 vectors, interrupt behavior, and relevant block-boundary cases. A first
+benchmark shows a hardware speedup of about \texttt{14.4x} over the software-only
+implementation for the current one-block \texttt{"abc"} case. Synthesis also runs
+cleanly, which gives us a solid frontend checkpoint before focusing on backend.
+This means that the project is already beyond the idea stage: the accelerator is
+integrated into the Croc environment, usable from software, and supported by a
+working verification and synthesis flow.
+
+\textbf{Evaluation plan.}
+The final project will be evaluated along the following axes:
+\begin{itemize}
+  \item \textbf{Functional correctness:} compare the accelerator against
+  standard SHA-256 test vectors and software reference behavior.
+  \item \textbf{Performance improvement:} measure speedup in cycle count
+  relative to the software-only implementation.
+  \item \textbf{Implementation cost:} collect synthesis and backend results,
+  with particular attention to area and timing impact.
+\end{itemize}
+
+\textbf{Expected outcome.}
+The intended final result is a Croc variant that demonstrates a clear,
+documented improvement over the exercise baseline. On the functional side, the
+accelerator should execute the standard SHA-256 compression correctly for
+single-block and multi-block workloads. On the performance side, it should show
+a measurable speedup over the software-only reference running on the Croc CPU.
+On the implementation side, the design should remain compatible with the fixed
+project constraints and be pushed as far as possible through the backend flow,
+so that the final report can discuss the accelerator not only as an algorithmic
+improvement, but also as a physically implementable SoC extension.
+
+\textbf{Next steps.}
+The next phase is to adapt the backend flow to the fixed 2026 chip-size and pad
+constraints, run the OpenROAD-based physical implementation flow, and collect
+area and timing results. The final report will then document the architecture,
+RTL modifications, verification approach, measured speedup, and the main backend
+challenges encountered during implementation. Concretely, the remaining work is
+to move from a verified frontend implementation to a backend-complete project:
+we must align the design with the fixed physical constraints of the 2026
+exercise framework, push the design through place-and-route, and assess the
+implementation cost of the improvement in silicon terms. This will allow the
+final project to argue not only that the accelerator works, but also that it is
+a technically meaningful and well-justified addition to the Croc SoC.
+
+\end{document}

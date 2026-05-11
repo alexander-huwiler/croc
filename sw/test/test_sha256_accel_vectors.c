@@ -2,8 +2,6 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 //
-// Authors:
-// - OpenAI Codex
 
 #include "config.h"
 #include "sha256_accel.h"
@@ -72,6 +70,60 @@ static const uint32_t a56_digest[8] = {
     0x590ce20f, 0x1bde7090, 0xef797068, 0x6ec6738a,
 };
 
+static const uint32_t a55_blocks[1][16] = {
+    {
+        0x61616161, 0x61616161, 0x61616161, 0x61616161,
+        0x61616161, 0x61616161, 0x61616161, 0x61616161,
+        0x61616161, 0x61616161, 0x61616161, 0x61616161,
+        0x61616161, 0x61616180, 0x00000000, 0x000001b8,
+    },
+};
+
+static const uint32_t a55_digest[8] = {
+    0x9f4390f8, 0xd30c2dd9, 0x2ec9f095, 0xb65e2b9a,
+    0xe9b0a925, 0xa5258e24, 0x1c9f1e91, 0x0f734318,
+};
+
+static const uint32_t a63_blocks[2][16] = {
+    {
+        0x61616161, 0x61616161, 0x61616161, 0x61616161,
+        0x61616161, 0x61616161, 0x61616161, 0x61616161,
+        0x61616161, 0x61616161, 0x61616161, 0x61616161,
+        0x61616161, 0x61616161, 0x61616161, 0x61616180,
+    },
+    {
+        0x00000000, 0x00000000, 0x00000000, 0x00000000,
+        0x00000000, 0x00000000, 0x00000000, 0x00000000,
+        0x00000000, 0x00000000, 0x00000000, 0x00000000,
+        0x00000000, 0x00000000, 0x00000000, 0x000001f8,
+    },
+};
+
+static const uint32_t a63_digest[8] = {
+    0x7d3e74a0, 0x5d7db15b, 0xce4ad9ec, 0x0658ea98,
+    0xe3f06eee, 0xcf16b4c6, 0xfff2da45, 0x7ddc2f34,
+};
+
+static const uint32_t a64_blocks[2][16] = {
+    {
+        0x61616161, 0x61616161, 0x61616161, 0x61616161,
+        0x61616161, 0x61616161, 0x61616161, 0x61616161,
+        0x61616161, 0x61616161, 0x61616161, 0x61616161,
+        0x61616161, 0x61616161, 0x61616161, 0x61616161,
+    },
+    {
+        0x80000000, 0x00000000, 0x00000000, 0x00000000,
+        0x00000000, 0x00000000, 0x00000000, 0x00000000,
+        0x00000000, 0x00000000, 0x00000000, 0x00000000,
+        0x00000000, 0x00000000, 0x00000000, 0x00000200,
+    },
+};
+
+static const uint32_t a64_digest[8] = {
+    0xffe054fe, 0x7ae0cb6d, 0xc65c3af9, 0xb61d5209,
+    0xf439851d, 0xb43d0ba5, 0x997337df, 0x154668eb,
+};
+
 static void finish_with_code(uint32_t exit_code) {
     *reg32(SOCCTRL_BASE_ADDR, SOC_CTRL_CORESTATUS_REG_OFFSET) = (exit_code << 1) | 1u;
     while (1) {
@@ -121,6 +173,9 @@ int main() {
     run_case(&message_digest_blocks[0][0], 1, message_digest_digest, 30);
     run_case(&alphabet_blocks[0][0], 1, alphabet_digest, 50);
     run_case(&a56_blocks[0][0], 2, a56_digest, 70);
+    run_case(&a55_blocks[0][0], 1, a55_digest, 90);
+    run_case(&a63_blocks[0][0], 2, a63_digest, 110);
+    run_case(&a64_blocks[0][0], 2, a64_digest, 130);
 
     finish_with_code(0);
 }

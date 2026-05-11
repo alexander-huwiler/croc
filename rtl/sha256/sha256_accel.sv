@@ -2,8 +2,6 @@
 // Solderpad Hardware License, Version 0.51, see LICENSE for details.
 // SPDX-License-Identifier: SHL-0.51
 //
-// Authors:
-// - OpenAI Codex
 
 module sha256_accel #(
   parameter type obi_req_t = logic,

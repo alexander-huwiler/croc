@@ -2,8 +2,6 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 //
-// Authors:
-// - OpenAI Codex
 
 #include "sha256_accel.h"
 #include "config.h"
